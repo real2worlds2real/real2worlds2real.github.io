@@ -1,36 +1,269 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Real2Worlds2Real</title>
-    <style>
-      :root { color-scheme: light; }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 2rem;
-        background: #fff;
-        color: #111;
-        font-family: Arial, Helvetica, sans-serif;
-        text-align: center;
-      }
-      h1 {
-        margin: 0 0 1rem;
-        font-size: clamp(1.75rem, 6vw, 3.5rem);
-        font-weight: 600;
-        overflow-wrap: anywhere;
-      }
-      p { margin: 0; font-size: 1.125rem; line-height: 1.6; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>Real2Worlds2Real</h1>
-      <p>Project website coming soon.</p>
-    </main>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real2Worlds2Real</title>
+<meta name="description" content="Real2Worlds2Real: Scaling Self-Improving Agentic Real2Sim2Real for Robot Manipulation">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/sections.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
+</head>
+<body>
+
+<div class="nav" id="nav"><div class="nav-in">
+  <a class="brand" href="#hero">Real<i>2</i>Worlds<i>2</i>Real</a>
+  <div class="nav-links">
+    <a href="#film">Film</a><a href="#worlds">Real → Worlds</a><a href="#policies">Worlds → Real</a><a href="#skills">Self-improving</a><a href="#scaling">Scaling</a>
+  </div>
+  <a class="nav-cta" href="#film">Watch the film</a>
+</div></div>
+
+<!-- ================= HERO ================= -->
+<section id="hero">
+  <div class="pin">
+    <canvas id="scene" tabindex="-1" aria-label="Interactive 3D reconstruction of the demo scene"></canvas>
+    <div class="hud">
+      <div class="title" id="title">
+        <h1>Real<i>2</i><b>Worlds</b><i>2</i>Real</h1>
+        <p class="tagline">Scaling Self-Improving Agentic Real2Sim2Real for Robot Manipulation</p>
+        <div class="btns">
+          <a class="btn primary" href="#film"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Film</a>
+          <a class="btn off" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Paper soon</a>
+          <a class="btn off" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14"/></svg>Code soon</a>
+        </div>
+      </div>
+      <div class="realchip" id="realchip"><span class="dot"></span>Real capture · a frame of the input video</div>
+      <div class="scrollcue" id="cue">Scroll to rebuild this scene<span></span></div>
+
+      <div class="beat" data-a="0.11" data-b="0.245"><span class="k">One RGB video in</span><h2>The agent rebuilds the room.</h2><p>Geometry, appearance, and metric scale — recovered from RGB alone.</p></div>
+      <div class="beat" data-a="0.255" data-b="0.84"><span class="k">Object by object</span><h2>Then everything in it.</h2><p>Each asset is written as code, rendered, tested in physics, and revised until it behaves like the real one.</p><div class="tally" id="tally"></div></div>
+      <div class="beat" data-a="0.83" data-b="0.89"><span class="k">A world, not a picture</span><h2>Ready for a robot to learn in.</h2><p>Every object here is a separate, simulatable asset. Pick one up.</p></div>
+      <div class="beat" data-a="0.9" data-b="0.972"><span class="k">Same camera</span><h2>Real on the left. Twin on the right.</h2><p>Drag the line. The twin's objects still move.</p></div>
+      <div class="split" id="split"><span class="lab l">Real capture</span><span class="lab r">Reconstructed twin</span><button class="knob" aria-label="Drag to compare the real capture with the twin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></button></div>
+
+      <div id="tags"></div>
+      <div class="tag3d" id="hovertag"></div>
+      <div class="hint" id="hint"><kbd>drag</kbd> rotate <kbd>shift + drag</kbd> move <kbd>double-click</kbd> reset</div>
+      <div class="rail" id="rail"><div data-a="0" data-b="0.012">Capture</div><div data-a="0.012" data-b="0.255">Room</div><div data-a="0.255" data-b="0.345">Robot</div><div data-a="0.345" data-b="0.84">Objects</div><div data-a="0.84" data-b="0.89">World</div><div data-a="0.89" data-b="1.01">Compare</div></div>
+    </div>
+    <div class="loader" id="loader"><div>Loading scene<div class="bar"><i></i></div></div></div>
+  </div>
+</section>
+
+<!-- ================= FILM + OUTLINE ================= -->
+<section id="film">
+  <div class="wrap">
+    <div class="film-h"><span class="k">The film · 2:39</span><h2>One agent. Real, to worlds, to real.</h2></div>
+    <div class="theater">
+      <video id="demo" src="assets/media/demo.mp4" poster="assets/media/demo_poster.jpg" controls playsinline preload="metadata"></video>
+      <div class="chapters" id="chapters"></div>
+    </div>
+    <div class="outline" id="outline">
+      <a class="act" href="#worlds" style="--c:#4fd8c6"><span class="n">01</span><h3>Real → Worlds</h3><p>An agent orchestrates tools to build faithful twins, then keeps regenerating them until rendering and physics agree with reality.</p><span class="go">World building →</span></a>
+      <a class="act" href="#policies" style="--c:#ff9a73"><span class="n">02</span><h3>Worlds → Real</h3><p>It picks how each task should be learned — planning, RL, imitation, MPC — and the policy transfers to the real robot.</p><span class="go">Policy development →</span></a>
+      <a class="act" href="#skills" style="--c:#b3a7ff"><span class="n">03</span><h3>Self-improving</h3><p>Every solved task leaves a reusable skill. The next world is cheaper; the next policy is better.</p><span class="go">Skill library →</span></a>
+      <a class="act" href="#scaling" style="--c:#8fc8ff"><span class="n">04</span><h3>Scaling</h3><p>One capture becomes a thousand worlds. More worlds and more interaction keep paying off.</p><span class="go">Scaling →</span></a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 01 REAL → WORLDS ================= -->
+<section id="worlds" class="sec dark" data-nav="dark" style="--c:var(--world-b)">
+  <div class="wrap">
+    <header class="sh rv">
+      <span class="kicker"><i></i>01 · Real → Worlds</span>
+      <h2>The agent orchestrates.<br>Then it regenerates.</h2>
+      <p class="lead">No fixed pipeline. A general-purpose agent picks the tool, checks each result against the evidence, and rebuilds whatever fails.</p>
+    </header>
+
+    <div class="trace rv" id="trace">
+      <div class="tr-tools" id="tr-tools"></div>
+      <div class="tr-main">
+        <div class="tr-stage" id="tr-stage"><div class="tr-cap" id="tr-cap"></div></div>
+        <aside class="tr-log glass" id="tr-log">
+          <div class="tr-log-h"><span class="orb"></span><b>Agent</b><span class="st" id="tr-st">observing</span></div>
+          <ol id="tr-steps"></ol>
+        </aside>
+      </div>
+      <div class="tr-ctl"><button id="tr-play" aria-label="Play or pause">❚❚</button><div class="tr-dots" id="tr-dots"></div><span class="tr-src">Real session · peg insertion twin · every image is an artifact the agent produced</span></div>
+    </div>
+
+    <div class="sub rv"><h3>Regenerate until it matches</h3><p>Each attempt is code the agent wrote, rendered beside the photo, criticized, and rewritten.</p></div>
+    <div class="att rv" id="att">
+      <div class="att-tabs seg dark" id="att-tabs"><button class="on" data-k="cup">Cup · 8 attempts</button><button data-k="bottle">Bottle + cap · 3 attempts, then a contact test</button></div>
+      <div class="att-main">
+        <figure class="att-ref glass"><img id="att-ref" alt="Reference photo" src="assets/media/worlds/cup_ref.jpg"><figcaption>Reference photo</figcaption></figure>
+        <figure class="att-cur glass"><div class="att-view" id="att-view"></div><figcaption><span id="att-cap">Attempt 1</span><span class="verdict" id="att-verdict"></span></figcaption></figure>
+        <div class="att-notes glass"><div class="tr-log-h"><span class="orb"></span><b>Agent</b><span class="st">reviewing</span></div><ul id="att-notes"></ul></div>
+      </div>
+      <div class="att-strip" id="att-strip"></div>
+    </div>
+
+    <div class="sub rv"><h3>What regeneration buys</h3><p>Same photo, same camera. Only the amount of agency changes: a fixed pipeline, one pass of the agent, then the agent with adaptive refinement.</p></div>
+    <div class="regen rv">
+      <div class="cmp" id="cmp">
+        <img class="cmp-b" id="cmp-b" alt="Reconstruction rendered at the reference camera" src="assets/media/worlds/fruits_fixed.jpg">
+        <div class="cmp-a" id="cmp-a"><img alt="Real reference photo" src="assets/media/worlds/fruits_real.jpg"></div>
+        <div class="cmp-bar" id="cmp-bar"><span>‹ ›</span></div>
+        <span class="cmp-l l">Real photo</span><span class="cmp-l r" id="cmp-name">Fixed pipeline</span>
+      </div>
+      <div class="rg-side">
+        <div class="rg-tabs" id="rg-tabs"></div>
+        <div class="rg-metrics glass" id="rg-metrics"></div>
+        <p class="note">Metrics: Table 2, mean over real captures (Fruits, HOPE-Video, ARKitScenes). Image: Fruits scene, each variant rendered at the reference camera.</p>
+      </div>
+    </div>
+
+    <div class="sub rv"><h3>A good picture is not yet a good world</h3><p>From the capture camera, a splat-based baseline can look as real as ours. A policy does not touch pictures. This is the geometry each method hands to the simulator for the same task, from the same capture.</p></div>
+    <div class="geo rv" id="geo">
+      <div class="seg dark" id="geo-tabs"><button class="on" data-k="gear">Gear insertion</button><button data-k="peg">Peg insertion</button></div>
+      <div class="geo-grid" id="geo-grid"></div>
+      <p class="note">Task objects as exported by each method, drawn with one neutral material and the same lighting. Success: real robot, 30 trials, after the same refinement procedure run inside that method's world (Table 1a).</p>
+      <div class="bt glass" id="geo-table"></div>
+      <p class="note">World quality on real scenes (Table 2). Higher is better in every column.</p>
+    </div>
+
+    <div class="sub rv"><h3>Physics, from a single RGB video</h3><p>The agent designs matching simulation trials, compares simulated and observed motion, and refines the parameters until they agree.</p></div>
+    <div class="phys rv">
+      <div class="big3">
+        <div><b>4.2<small>%</small></b><span>parameter error<br><em>next best 24.4%</em></span></div>
+        <div><b>2.6<small>%</small></b><span>motion-prediction error<br><em>next best 13.1%</em></span></div>
+        <div><b>0<small>%</small></b><span>bound violations<br><em>others 20–34%</em></span></div>
+      </div>
+      <div class="bt glass" id="phys-table"></div>
+    </div>
+
+    <div class="sub rv"><h3>Not only rigid bodies</h3><p>The same harness builds worlds that cut, pour, break, and bend — simulated with PhysX or Newton solvers.</p></div>
+    <div class="show rv" id="show"></div>
+  </div>
+</section>
+
+<!-- ================= 02 WORLDS → REAL ================= -->
+<section id="policies" class="sec light" data-nav="light" style="--c:var(--policy);--cs:var(--policy-soft)">
+  <div class="wrap">
+    <header class="sh rv">
+      <span class="kicker"><i></i>02 · Worlds → Real</span>
+      <h2>It decides how each task should be learned.</h2>
+      <p class="lead">One harness, many routes. The agent chooses tools per task and lets simulated rollouts tell it what to fix next.</p>
+    </header>
+
+    <div class="tw rv" id="tw"></div>
+    <p class="note rv">All eight tasks of Table 1 · 30 real-robot trials each · "Twin" clips are the same task inside the reconstructed world.</p>
+
+    <div class="sub rv"><h3>A different route for each task</h3><p>The agent picks tools, reads the failures in simulated rollouts, and changes the plan.</p></div>
+    <div class="pipe card rv" id="pipe">
+      <div class="pipe-top"><span class="pl">Task</span><div class="chips" id="pipe-tasks"></div></div>
+      <div class="pipe-flow">
+        <div class="pf-node"><span class="t">Station</span><b>Twin world</b><span class="d">serves the task through the robot's own interface · hidden judge</span></div>
+        <div class="pf-arrow"></div>
+        <div class="pf-tools"><span class="t">Agent picks tools</span><div class="pf-grid" id="pipe-tools"></div></div>
+        <div class="pf-arrow"></div>
+        <div class="pf-node"><span class="t">Evaluate</span><b>Simulated rollouts</b><span class="d">failures go back to the agent</span><span class="loop">↺ refine</span></div>
+        <div class="pf-arrow"></div>
+        <div class="pf-node real"><span class="t">Freeze</span><b>Real robot</b><span class="d" id="pipe-real"></span></div>
+      </div>
+      <div class="pipe-run" id="pipe-run"></div>
+      <p class="pipe-note" id="pipe-note"></p>
+    </div>
+
+    <div class="sub rv"><h3>Same commands. Real robot and twin.</h3><p>The real execution, replayed inside the reconstructed world from the same viewpoint.</p></div>
+    <div class="rv"><div class="seg" id="pair-tabs"><button class="on" data-k="cup">Cup stacking</button><button data-k="cap">Bottle capping</button><button data-k="wipe">Tissue wiping</button></div></div>
+    <div class="pair card rv" id="pair">
+      <div class="pv"><span class="badge">Real robot</span><video id="pv-real" src="assets/media/pair/cup_real.mp4" poster="assets/media/pair/cup_real.jpg" muted playsinline preload="metadata"></video></div>
+      <div class="pv"><span class="badge">Digital twin</span><video id="pv-twin" src="assets/media/pair/cup_twin.mp4" poster="assets/media/pair/cup_twin.jpg" muted playsinline preload="metadata"></video></div>
+      <div class="pair-ctl"><button id="pair-play" aria-label="Play or pause">▶</button><input type="range" id="pair-seek" min="0" max="1000" value="0" aria-label="Seek both videos"><span class="mono" id="pair-t">0:00</span></div>
+    </div>
+
+    <div class="sub rv"><h3>Real-world success</h3><p>30 real-robot trials per task and method, on precision-demanding manipulation.</p></div>
+    <div class="rv"><div class="seg" id="realseg"><button class="on" data-k="a">World construction</button><button data-k="b">Policy development</button></div></div>
+    <div class="card bt rv" id="realbars"></div>
+    <p class="note rv" id="realfoot"></p>
+  </div>
+</section>
+
+<!-- ================= 03 SELF-IMPROVING ================= -->
+<section id="skills" class="sec light" data-nav="light" style="--c:var(--skill);--cs:var(--skill-soft)">
+  <div class="wrap">
+    <header class="sh rv">
+      <span class="kicker"><i></i>03 · Self-improving</span>
+      <h2>Every solved task leaves a skill behind.</h2>
+      <p class="lead">Validated procedures are distilled into a library. The next world is cheaper to build; the next policy is better.</p>
+    </header>
+    <div class="rv"><div class="seg" id="siseg"><button class="on" data-k="world">Building worlds</button><button data-k="policy">Developing policies</button></div></div>
+    <div class="si rv" id="si">
+      <div class="si-stage card">
+        <div class="si-feat" id="si-feat"></div>
+        <div class="si-wall" id="si-wall"></div>
+        <div class="si-target" id="si-target"><video src="assets/media/si/w_target.mp4" poster="assets/media/si/w_target.jpg" muted loop playsinline preload="metadata"></video><div><span class="mono">Rebuild target</span><b>Cut Lemon scene</b><p>Held out. Each added skill covers one part of it: the fruit, the cut pieces, the knife and board.</p></div></div>
+      </div>
+      <div class="si-side">
+        <div class="card si-lib"><div class="si-lib-h"><b>Skill library</b><span class="mono" id="si-count">0</span></div><div class="si-chips" id="si-chips"></div></div>
+        <div class="card si-chart"><div class="si-chart-h"><div><b id="si-ct"></b><p id="si-cs"></p></div><div class="si-big" id="si-big"></div></div><div class="legend" id="si-legend"></div><div id="si-plot"></div><p class="note" id="si-note"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 SCALING ================= -->
+<section id="scaling" class="sec dark finale" data-nav="dark" style="--c:var(--scale-b)">
+  <div class="wrap">
+    <header class="sh rv center">
+      <span class="kicker"><i></i>04 · Scaling</span>
+      <h2>One capture. A thousand worlds.</h2>
+      <p class="lead">Twins become cousins: rooms, objects, layouts, and lighting vary while the task stays executable. More worlds keep paying off.</p>
+    </header>
+    <div class="wall rv" id="wall">
+      <div class="wall-view" id="wall-view"><div class="wall-world" id="wall-world"></div><div class="wall-ten" id="wall-ten"></div></div>
+      <div class="wall-tip" id="wall-tip"><video muted loop playsinline></video><span></span></div>
+      <div class="wall-hud">
+        <div class="wall-n"><b id="wall-n">10</b><span>training worlds</span></div>
+        <div class="wall-v"><b><span id="wall-v">17</span>%</b><span>success on 100 unseen scenes</span></div>
+      </div>
+    </div>
+    <div class="wall-ctl rv"><div class="stops" id="stops"></div><span class="note">Stack Cups · Diffusion Policy · demonstrations fixed at 1,000 · 10 and 100: rendered cousin rollouts · beyond: those hundred, still playing, among variations of the reconstructed scene rendered live in your browser</span></div>
+
+    <div class="sub rv center"><h3>Twin, then cousins</h3><p>The same task and the same executable structure, in worlds the photo never showed.</p></div>
+    <div class="cz rv">
+      <figure><video src="assets/media/tasks/cup_sim.mp4" poster="assets/media/tasks/cup_sim.jpg" muted loop playsinline preload="none" data-autoplay></video><figcaption><b>Twin</b> the captured scene</figcaption></figure>
+      <figure><video src="assets/media/cousin/design_studio.mp4" poster="assets/media/cousin/design_studio.jpg" muted loop playsinline preload="none" data-autoplay></video><figcaption><b>Cousin</b> new room, table, distractors</figcaption></figure>
+      <figure><video src="assets/media/cousin/recording_room.mp4" poster="assets/media/cousin/recording_room.jpg" muted loop playsinline preload="none" data-autoplay></video><figcaption><b>Cousin</b> new room, materials, lighting</figcaption></figure>
+    </div>
+
+    <div class="grid2 rv">
+      <div class="glass pad"><div class="ch-h"><div><h3>World-diversity scaling</h3><p>Unseen-scene success vs. training worlds.</p></div></div><div id="ch-div"></div></div>
+      <div class="glass pad"><div class="ch-h"><div><h3>Interaction-data scaling</h3><p>More demonstrations plateau; learning from failures breaks through.</p></div></div>
+        <div class="legend"><span><i style="--k:var(--world-b)"></i>Seen scenes</span><span><i style="--k:var(--policy-b)"></i>Unseen scenes</span><span><i class="d" style="--k:var(--snow3)"></i>+ DAgger refinement</span></div><div id="ch-data"></div></div>
+    </div>
+
+    <div class="sub rv center"><h3>Every world is a place to practice</h3><p>Rollouts in the reconstructed worlds, across tasks, checkpoints, and viewpoints.</p></div>
+  </div>
+  <div class="reel rv" id="reel"><div class="reel-row" id="reel-a"></div><div class="reel-row rev" id="reel-b"></div></div>
+  <div class="wrap">
+    <div class="sub rv center"><h3>From one skill to a chain</h3><p>Stack the cups, place the cap, screw it tight — composed in the reconstructed world.</p></div>
+    <div class="chainv rv"><video src="assets/media/policy/chain.mp4" poster="assets/media/policy/chain.jpg" muted loop playsinline preload="metadata" data-autoplay></video></div>
+
+    <div class="closing rv">
+      <h2>Real <i>→</i> <b>Worlds</b> <i>→</i> Real.</h2>
+      <p>Scaling, and improving with every task.</p>
+      <div class="btns"><a class="btn primary" href="#film">Watch the film</a><a class="btn" href="#hero">Rebuild the scene again ↑</a></div>
+      <div class="authors" aria-label="Authors"><span>Jinzhong Gu</span><span>Jiakai Chen</span><span>Xinyi Cao</span><span>Yan Shen</span><span>Hangke Sui</span><span>Shutian Zheng</span><span>Xiang Xiao</span><span>Lu Shi</span><span>Haoran Lu</span><span>Fan Xu</span><span>Daochen Shi</span><span>Ruihua Zhang</span><span>Wei Zhan</span><span>Masayoshi Tomizuka</span><span>Ruihai Wu</span></div>
+      <pre><button class="copy" id="copy">Copy</button><code id="bib">@misc{real2worlds2real,
+  title  = {Real2Worlds2Real: Scaling Self-Improving Agentic Real2Sim2Real for Robot Manipulation},
+  author = {Jinzhong Gu, Jiakai Chen, Xinyi Cao, Yan Shen, Hangke Sui, Shutian Zheng, Xiang Xiao, Lu Shi, Haoran Lu, Fan Xu, Daochen Shi, Ruihua Zhang, Wei Zhan, Masayoshi Tomizuka, Ruihai Wu},
+  year   = {2026}
+}</code></pre>
+    </div>
+    <footer><span>Real2Worlds2Real</span><span>All numbers are from the paper.</span></footer>
+  </div>
+</section>
+
+
+<script type="module" src="js/main.js"></script>
+</body>
 </html>

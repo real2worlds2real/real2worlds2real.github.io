@@ -1,0 +1,329 @@
+{
+ "policy": [
+  {
+   "skill": "Pick",
+   "method": "Imitation learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_pick_0",
+     "label": "cup"
+    },
+    {
+     "src": "p_pick_1",
+     "label": "bottle cap"
+    },
+    {
+     "src": "p_pick_2",
+     "label": "cup"
+    }
+   ]
+  },
+  {
+   "skill": "Place",
+   "method": "Imitation learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_place_0",
+     "label": "cup into cup"
+    },
+    {
+     "src": "p_place_1",
+     "label": "cap onto bottle"
+    },
+    {
+     "src": "p_place_2",
+     "label": "cap onto bottle"
+    }
+   ]
+  },
+  {
+   "skill": "Open lid",
+   "method": "Imitation learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_open_lid_0",
+     "label": "wipes canister"
+    },
+    {
+     "src": "p_open_lid_1",
+     "label": "wipes canister"
+    },
+    {
+     "src": "p_open_lid_2",
+     "label": "wipes canister"
+    }
+   ]
+  },
+  {
+   "skill": "Insert",
+   "method": "Reinforcement learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_insert_0",
+     "label": "peg in hole"
+    },
+    {
+     "src": "p_insert_1",
+     "label": "gear on shaft"
+    },
+    {
+     "src": "p_insert_2",
+     "label": "peg in hole"
+    }
+   ]
+  },
+  {
+   "skill": "Tighten",
+   "method": "Reinforcement learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_tighten_0",
+     "label": "bottle cap"
+    },
+    {
+     "src": "p_tighten_1",
+     "label": "bottle cap"
+    },
+    {
+     "src": "p_tighten_2",
+     "label": "hex nut"
+    }
+   ]
+  },
+  {
+   "skill": "Wipe",
+   "method": "Code-as-Policy",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_wipe_0",
+     "label": "water on table"
+    },
+    {
+     "src": "p_wipe_1",
+     "label": "water on table"
+    },
+    {
+     "src": "p_wipe_2",
+     "label": "water on table"
+    }
+   ]
+  },
+  {
+   "skill": "Stack",
+   "method": "Reinforcement learning",
+   "badge": null,
+   "tiles": [
+    {
+     "src": "p_stack_0",
+     "label": "cups"
+    },
+    {
+     "src": "p_stack_1",
+     "label": "cups"
+    },
+    {
+     "src": "p_stack_2",
+     "label": "cups"
+    }
+   ]
+  },
+  {
+   "skill": "Chain",
+   "method": "Reinforcement learning",
+   "badge": "LONG-HORIZON",
+   "tiles": [
+    {
+     "src": "p_chain_0",
+     "label": "stack, cap, tighten"
+    },
+    {
+     "src": "p_chain_1",
+     "label": "stack, cap, tighten"
+    },
+    {
+     "src": "p_chain_2",
+     "label": "stack, cap, tighten"
+    }
+   ]
+  }
+ ],
+ "world": [
+  {
+   "skill": "Fruit",
+   "sub": "WHOLE FRUIT",
+   "tiles": [
+    {
+     "src": "w_fruit_0",
+     "label": "lemon"
+    },
+    {
+     "src": "w_fruit_1",
+     "label": "orange"
+    },
+    {
+     "src": "w_fruit_2",
+     "label": "pear"
+    }
+   ]
+  },
+  {
+   "skill": "Cut objects",
+   "sub": "PIECES AND CUT FACES",
+   "tiles": [
+    {
+     "src": "w_cut_objects_0",
+     "label": "lemon"
+    },
+    {
+     "src": "w_cut_objects_1",
+     "label": "sponge cake"
+    },
+    {
+     "src": "w_cut_objects_2",
+     "label": "lemon"
+    }
+   ]
+  },
+  {
+   "skill": "Flat objects",
+   "sub": "KNIFE, BOARD, PLATE",
+   "tiles": [
+    {
+     "src": "w_flat_objects_0",
+     "label": "paring knife"
+    },
+    {
+     "src": "w_flat_objects_1",
+     "label": "cutting board"
+    },
+    {
+     "src": "w_flat_objects_2",
+     "label": "plate"
+    }
+   ]
+  },
+  {
+   "skill": "Containers",
+   "sub": null,
+   "tiles": [
+    {
+     "src": "w_containers_0",
+     "label": "cups"
+    },
+    {
+     "src": "w_containers_1",
+     "label": "water bottle"
+    },
+    {
+     "src": "w_containers_2",
+     "label": "storage box"
+    }
+   ]
+  },
+  {
+   "skill": "Scenes",
+   "sub": null,
+   "tiles": [
+    {
+     "src": "w_scenes_0",
+     "label": "photo vs. reconstruction"
+    },
+    {
+     "src": "w_scenes_1",
+     "label": "tabletop"
+    },
+    {
+     "src": "w_scenes_2",
+     "label": "lab and robot"
+    }
+   ]
+  }
+ ],
+ "world_chart": {
+  "title": "Rebuilding the Cut Lemon scene",
+  "xlabel": "Number of skills in the library",
+  "x": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "tokens": [
+   28.14,
+   21.65,
+   17.88,
+   13.89
+  ],
+  "ssim": [
+   0.9248,
+   0.9173,
+   0.9141,
+   0.9291
+  ],
+  "token_max": 30,
+  "ssim_label": "Fidelity to the real photo (SSIM, 1 = identical)",
+  "token_label": "Tokens to rebuild (M)"
+ },
+ "policy_chart": {
+  "title": "Long-horizon task success (%)",
+  "xlabel": "Number of skills in the library",
+  "x": [
+   0,
+   21,
+   39,
+   57,
+   88,
+   102,
+   122,
+   136
+  ],
+  "pos": [
+   46.8,
+   57.6,
+   61.2,
+   69.8,
+   71.0,
+   71.0,
+   78.8,
+   78.8
+  ],
+  "task": [
+   59.0,
+   70.4,
+   70.8,
+   72.8,
+   71.2,
+   83.8,
+   85.6,
+   85.6
+  ],
+  "overall": [
+   52.9,
+   64.0,
+   66.0,
+   71.3,
+   71.1,
+   77.4,
+   82.2,
+   82.2
+  ],
+  "zeroshot": [
+   44.1,
+   43.2,
+   42.8,
+   45.8,
+   54.0,
+   64.4,
+   67.1,
+   69.1
+  ],
+  "prior": 8,
+  "prior_label": "Prior methods (no library) \u2264 8%"
+ }
+}
