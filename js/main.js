@@ -1,4 +1,5 @@
 import { initHero } from './hero.js';
+import { initStory } from './story.js';
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const Q = new URLSearchParams(location.search);
@@ -10,7 +11,7 @@ const TALLY = ['Robot', 'Plant', 'Storage box', 'Bottle', 'Cap', 'Blue cup', 'Wh
 const TALLY_OF = { robot: 0, potted_plant: 1, storage_box: 2, water_bottle: 3, bottle_cap: 4, blue_cup: 5, white_cup: 6, diffuser: 7, fruit_plate: 8, fruit_1: 9, fruit_2: 9, fruit_3: 9, fruit_4: 9, fruit_5: 9, wipes: 10 };
 const TALLY_AT = [0.31, 0.39, 0.43, 0.48, 0.52, 0.56, 0.595, 0.64, 0.685, 0.75, 0.805];
 TALLY.forEach(t => { const s = document.createElement('span'); s.textContent = t; tally.append(s); });
-let hero = null;
+let hero = null, story = null;
 function heroProgress() { const r = heroEl.getBoundingClientRect(); return clamp01(-r.top / (r.height - innerHeight)); }
 function hud(p) {
   const tf = clamp01(1 - p / 0.06);
@@ -23,6 +24,8 @@ function hud(p) {
   realchip.style.opacity = clamp01(1 - p / 0.05);
 }
 const realchip = $('#realchip'), splitEl = $('#split');
+const TOUCH = matchMedia('(hover: none), (pointer: coarse)').matches;
+if (TOUCH) { hint.innerHTML = '<span><kbd>swipe ↔</kbd> turn</span><span><kbd>hold + drag</kbd> move</span><span><kbd>double-tap</kbd> reset</span>'; document.documentElement.classList.add('touch'); }
 let splitX = null;
 function placeSplit(x = splitX) { splitX = x; splitEl.classList.toggle('on', x != null && x > 0.02); if (x != null) splitEl.style.setProperty('--x', (x * 100) + '%'); }
 { // drag the divider between the real capture and the twin
@@ -55,9 +58,9 @@ if (webgl) {
       requestAnimationFrame(() => t.classList.add('on')); setTimeout(() => t.classList.remove('on'), 1500); setTimeout(() => t.remove(), 2000);
     },
     onSplit: x => { if (x !== splitX) placeSplit(x); },
-    onHover: (o, xy) => { if (!o) return hovertag.classList.remove('on'); hovertag.textContent = o.label; hovertag.style.left = xy[0] + 'px'; hovertag.style.top = (xy[1] - 16) + 'px'; hovertag.classList.add('on'); },
+    onHover: (o, xy, mode) => { if (story && story.hover(mode === 'move' ? null : o) && mode !== 'move') return hovertag.classList.remove('on'); if (!o) return hovertag.classList.remove('on'); hovertag.textContent = (mode === 'move' ? 'Moving · ' : '') + o.label; hovertag.classList.toggle('mv', mode === 'move'); hovertag.style.left = xy[0] + 'px'; hovertag.style.top = (xy[1] - 16) + 'px'; hovertag.classList.add('on'); },
   }).then(h => {
-    hero = h; window.__hero = h; document.dispatchEvent(new Event('hero-ready')); h.set(Q.has('p') ? +Q.get('p') : heroProgress(), true); loader.classList.add('done'); document.documentElement.dataset.hero = 'ready';
+    hero = h; window.__hero = h; story = initStory({ hero: h, pin: heroEl.querySelector('.pin') }); window.__story = story; document.dispatchEvent(new Event('hero-ready')); h.set(Q.has('p') ? +Q.get('p') : heroProgress(), true); loader.classList.add('done'); document.documentElement.dataset.hero = 'ready';
     if (Q.has('p')) { hud(+Q.get('p')); removeEventListener('scroll', onScroll); }
   }).catch(e => { console.error(e); loader.classList.add('done'); document.documentElement.dataset.hero = 'failed'; });
 } else { loader.classList.add('done'); document.documentElement.dataset.hero = 'nowebgl'; }

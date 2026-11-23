@@ -51,6 +51,17 @@
       <div class="hint" id="hint"><kbd>drag</kbd> rotate <kbd>shift + drag</kbd> move <kbd>double-click</kbd> reset</div>
       <div class="rail" id="rail"><div data-a="0" data-b="0.012">Capture</div><div data-a="0.012" data-b="0.255">Room</div><div data-a="0.255" data-b="0.345">Robot</div><div data-a="0.345" data-b="0.84">Objects</div><div data-a="0.84" data-b="0.89">World</div><div data-a="0.89" data-b="1.01">Compare</div></div>
     </div>
+    <div class="story" id="story" aria-hidden="true">
+      <div class="story-scrim"></div>
+      <div class="story-card" role="dialog" aria-modal="true" aria-labelledby="story-title">
+        <div class="story-head"><div><span class="story-k" id="story-k"></span><h3 id="story-title"></h3></div><button class="story-x" type="button" aria-label="Close">✕</button></div>
+        <div class="story-body">
+          <div class="story-stage" id="story-stage"></div>
+          <aside class="story-log"><div class="tr-log-h"><span class="orb"></span><b>Agent</b><span class="st" id="story-st"></span></div><ol id="story-steps"></ol></aside>
+        </div>
+        <div class="story-foot"><button id="story-play" type="button" aria-label="Play or pause">❚❚</button><div class="story-dots" id="story-dots"></div><span class="story-trial" id="story-trial"></span></div>
+      </div>
+    </div>
     <div class="loader" id="loader"><div>Loading scene<div class="bar"><i></i></div></div></div>
   </div>
 </section>

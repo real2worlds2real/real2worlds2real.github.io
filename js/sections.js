@@ -29,13 +29,14 @@ function trace() {
     { t: 'Test it in physics', d: 'Pull the peg out, re-insert it: it seats within 0.7 mm.', img: 't_split', tools: ['PhysX'], cap: ['PhysX · insertion check', ['re-seat error 0.68 mm ✓', 'good']] },
     { t: 'Place the robot', d: 'From the nominal pose. The render disagrees with the photo.', img: 't_pose0', tools: ['RTX render', 'Photo compare'], cap: ['photo | render', ['mismatch ✗', 'bad']], fail: 1, contain: 1 },
     { t: 'Regenerate', d: 'Re-fit the base pose against the photo silhouette, then render again.', img: 't_pose1', tools: ['Camera solve', 'RTX render', 'Photo compare'], cap: ['photo | render', ['silhouette Dice 0.84 ✓', 'good']], contain: 1 },
-    { t: 'Audit unseen views', d: 'Render what the photo never showed; look for holes and floaters.', img: 't_unseen', tools: ['RTX render'], cap: ['novel view'] },
-    { t: 'Twin accepted', d: 'A simulatable world, handed to policy development.', img: 't_oblique', tools: [], cap: [['twin ready ✓', 'good']] },
+    { t: 'Audit unseen views', d: 'Render what the photo never showed; look for holes and floaters.', img: 't_oblique', tools: ['RTX render'], cap: ['novel view'] },
+    { t: 'Twin accepted', d: 'Robot, table, and task object, rendered from the capture camera.', img: 't_final', tools: ['RTX render'], cap: ['twin · capture camera', ['accepted ✓', 'good']] },
+    { t: 'Hand it to policy development', d: 'The same task now runs inside the twin.', img: 't_rollout', vid: 1, dur: 15500, tools: ['PhysX'], cap: ['rollout in the twin', ['peg inserted ✓', 'good']] },
   ];
   const DUR = 4200;
   const stage = $('#tr-stage'), cap = $('#tr-cap'), list = $('#tr-steps'), dots = $('#tr-dots'), toolsEl = $('#tr-tools'), st = $('#tr-st');
   TOOLS.forEach(t => toolsEl.append(el('span', 'tool', t)));
-  const imgs = STEPS.map(s => { const i = el('img'); i.alt = s.t; i.loading = 'lazy'; i.src = `${M}worlds/${s.img}.jpg`; if (s.contain) i.classList.add('contain'); stage.prepend(i); return i; });
+  const imgs = STEPS.map(s => { const i = el(s.vid ? 'video' : 'img'); if (s.vid) Object.assign(i, { muted: true, loop: true, playsInline: true, preload: 'none', poster: `${M}worlds/${s.img}.jpg`, src: `${M}worlds/${s.img}.mp4` }); else { i.alt = s.t; i.loading = 'lazy'; i.src = `${M}worlds/${s.img}.jpg`; } if (s.contain) i.classList.add('contain'); stage.prepend(i); return i; });
   STEPS.forEach((s, i) => {
     const li = el('li', s.fail ? 'failstep' : '', `<span class="n">${i + 1}</span><span><b>${s.t}</b><span class="t">${s.d}</span>${s.tools.length ? `<code>${s.tools.join(' · ')}</code>` : ''}</span>`);
     li.onclick = () => go(i, true); list.append(li);
@@ -44,16 +45,16 @@ function trace() {
   let cur = -1, timer = null, playing = false, visible = false;
   function go(i, user) {
     cur = (i + STEPS.length) % STEPS.length; const s = STEPS[cur];
-    imgs.forEach((im, j) => im.classList.toggle('on', j === cur));
+    imgs.forEach((im, j) => { im.classList.toggle('on', j === cur); if (im.tagName === 'VIDEO') { if (j === cur && visible) { im.currentTime = 0; im.play().catch(() => { }); } else im.pause(); } });
     [...list.children].forEach((li, j) => { li.classList.toggle('on', j === cur); li.classList.toggle('done', j < cur); li.classList.toggle('fail', j <= cur && !!STEPS[j].fail && j !== cur || (j === cur && !!s.fail)); });
-    [...dots.children].forEach((d, j) => { d.classList.remove('on'); d.classList.toggle('done', j < cur); d.style.setProperty('--dur', DUR + 'ms'); });
+    [...dots.children].forEach((d, j) => { d.classList.remove('on'); d.classList.toggle('done', j < cur); d.style.setProperty('--dur', (STEPS[j].dur || DUR) + 'ms'); });
     void dots.offsetWidth; if (playing) dots.children[cur].classList.add('on');
     const used = new Set(STEPS.slice(0, cur).flatMap(x => x.tools));
     [...toolsEl.children].forEach(t => { t.classList.toggle('on', s.tools.includes(t.textContent)); t.classList.toggle('used', used.has(t.textContent)); });
     cap.innerHTML = s.cap.map(c => Array.isArray(c) ? `<span class="${c[1]}">${c[0]}</span>` : `<span>${c}</span>`).join('');
     st.textContent = s.fail ? 'revising' : cur === STEPS.length - 1 ? 'done' : s.tools.length ? 'working' : 'observing';
     list.children[cur].scrollIntoView({ block: 'nearest', behavior: 'smooth', inline: 'nearest' });
-    clearTimeout(timer); if (playing && visible) timer = setTimeout(() => go(cur + 1), user ? DUR * 1.6 : DUR);
+    clearTimeout(timer); if (playing && visible) timer = setTimeout(() => go(cur + 1), s.dur || (user ? DUR * 1.6 : DUR));
   }
   const btn = $('#tr-play');
   const setPlay = p => { playing = p; btn.textContent = p ? '❚❚' : '▶'; go(Math.max(cur, 0)); };
@@ -156,14 +157,14 @@ function geometry() {
   inView(grid, on => { geoOn = on; playGeo(); }, { threshold: .2 });
   $$('#geo-tabs button').forEach(b => b.onclick = () => { $$('#geo-tabs button').forEach(x => x.classList.toggle('on', x === b)); show(b.dataset.k); });
   show('gear');
-  barTable($('#geo-table'), { tasks: ['PSNR', 'Object F1', 'Surface F-score', 'Stability', 'Penetration', 'Support recall'], sub: ['visual', 'geometry', '@ 1 cm', 'physics', 'quality', 'scene'], max: [30, 1, .15, 1, 1, 1], lw: 150,
+  barTable($('#geo-table'), { tasks: ['PSNR', 'Object F1', 'Surface F-score', 'Stability', 'Penetration', 'Support recall'], short: ['PSNR', 'Obj. F1', 'F-score', 'Stable', 'Penetr.', 'Support'], sub: ['visual', 'geometry', '@ 1 cm', 'physics', 'quality', 'scene'], max: [30, 1, .15, 1, 1, 1], lw: 150,
     fmt: (v, i) => i === 0 ? v.toFixed(1) : i === 2 ? v.toFixed(3) : v.toFixed(2),
     rows: [['ACDC', [9.5, .05, 0, 0, 0, 0]], ['SimFoundry', [10.4, .26, .002, .17, 0, .01]], ['PolaRiS', [21.5, .58, .037, .28, .09, .16]], ['Real2Worlds2Real', [23.8, .69, .108, .63, .55, .58], 1]] });
 }
 
 /* ================= bar table ================= */
-function barTable(root, { tasks, rows, max, sub, fmt, lw }) {
-  let h = `<div class="bt-in" style="--n:${tasks.length};${lw ? `--lw:${lw}px` : ''}"><div class="bt-r head"><span></span>${tasks.map((t, i) => `<span><b>${t}</b>${sub ? `<small>${sub[i]}</small>` : ''}</span>`).join('')}</div>`;
+function barTable(root, { tasks, rows, max, sub, fmt, lw, short }) {
+  let h = `<div class="bt-in" style="--n:${tasks.length};${lw ? `--lw:${lw}px` : ''}"><div class="bt-r head"><span></span>${tasks.map((t, i) => `<span><b>${short ? `<span class="lg">${t}</span><span class="sm">${short[i]}</span>` : t}</b>${sub ? `<small>${sub[i]}</small>` : ''}</span>`).join('')}</div>`;
   rows.forEach(r => {
     if (typeof r === 'string') { h += `<div class="bt-r grp"><span>${r}</span></div>`; return; }
     const [m, vals, ours] = r;
@@ -178,7 +179,7 @@ function barTable(root, { tasks, rows, max, sub, fmt, lw }) {
   inView(root, on => on && fill(), { threshold: .15 });
 }
 function physics() {
-  barTable($('#phys-table'), { tasks: ['Parameter error ↓', 'Prediction error ↓'], max: [120, 120], lw: 190, fmt: v => (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + '%', rows: [
+  barTable($('#phys-table'), { tasks: ['Parameter error ↓', 'Prediction error ↓'], short: ['Param. error ↓', 'Predict. error ↓'], max: [120, 120], lw: 190, fmt: v => (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + '%', rows: [
     'Default parameters', ['PhysX default', [119.4, 83.1]], ['LLM handbook values', [25.0, 18.3]],
     'Video-based system identification', ['NIRPI', [48.4, 17.1]], ['Garcia et al.', [3702, 515]],
     'Single-pass inference', ['2D tracking + analytic', [24.4, 13.1]], ['Qwen3-VL-8B', [48.2, 23.6]], ['Claude Opus 5.5', [25.4, 15.4]],
@@ -284,10 +285,10 @@ function pair() {
 /* ================= 02 · real bars ================= */
 function realBars() {
   const REAL = {
-    a: { tasks: ['Peg insertion', 'Cup stacking', 'Gear insertion', 'Tissue wiping', 'Bottle capping'],
+    a: { tasks: ['Peg insertion', 'Cup stacking', 'Gear insertion', 'Tissue wiping', 'Bottle capping'], short: ['Peg', 'Cup', 'Gear', 'Wipe', 'Cap'],
       rows: [['ACT (imitation)', [66.7, 53.3, 43.3, 46.7, 53.3]], ['Real-world training', [86.7, 96.7, 86.7, 60.0, 93.3]], ['PolaRiS', [83.3, 66.7, 60.0, 50.0, 63.3]], ['SimFoundry', [73.3, 83.3, 40.0, 46.7, 56.7]], ['Real2Worlds2Real', [100, 100, 93.3, 70.0, 93.3], 1]],
       foot: 'Table 1(a). Every method refines the same ACT base policy (60 real demonstrations) with the same RL procedure and equal data; only the world differs.' },
-    b: { tasks: ['Cup lifting', 'Pick and place', 'Nut tightening', 'Cup stacking'],
+    b: { tasks: ['Cup lifting', 'Pick and place', 'Nut tightening', 'Cup stacking'], short: ['Lift', 'Pick & place', 'Nut', 'Cup'],
       rows: [['ACT (imitation)', [56.7, 50.0, 40.0, 53.3]], ['ENPIRE', [76.7, 83.3, 53.3, 80.0]], ['ASPIRE', [90.0, 86.7, 63.3, 80.0]], ['Real2Worlds2Real', [100, 90.0, 73.3, 100], 1]],
       foot: 'Table 1(b). All agentic methods use our simulation worlds and the same 60 real demonstrations; only the way the policy is developed differs.' } };
   const show = k => { barTable($('#realbars'), REAL[k]); $('#realfoot').textContent = REAL[k].foot; };

@@ -376,13 +376,32 @@ export async function initHero({ canvas, onProgress, onLabel, onReady, onHover, 
     if (photoOn && (splitNow > 1 || (e.clientX - r.left) / r.width < splitNow)) return null;      // the photo is on top there
     ray.setFromCamera(ndc, camera);
     const h = ray.intersectObjects(pickables.filter(m => objs[m.userData.pick].r >= 1), false)[0];
-    return h ? objs[h.object.userData.pick] : null;
+    if (h) return objs[h.object.userData.pick];
+    if (e.pointerType !== 'touch') return null;
+    // a fingertip is wider than a cup on a phone screen: take the nearest object within reach of the touch
+    let best = null, bd = 36; const v = new THREE.Vector3();
+    for (const o of Object.values(objs)) {
+      if (o === robot || o.r < 1 || !o.pivot.visible) continue;
+      v.copy(o.pivot.position); v.y += o.info.size[1] / 2; v.project(camera);
+      const d = Math.hypot((v.x + 1) / 2 * r.width - (e.clientX - r.left), (1 - v.y) / 2 * r.height - (e.clientY - r.top));
+      if (d < bd) { bd = d; best = o; }
+    }
+    return best;
   };
   const setHover = o => { if (o === hover) return; hover = o; canvas.style.cursor = o ? 'grab' : ''; onHover?.(o, o ? screenOf(o) : null); dirty = true; };
   function screenOf(o) { const v = o.pivot.position.clone(); v.y += o.info.size[1] + 0.03; v.project(camera); const r = canvas.getBoundingClientRect(); return [(v.x + 1) / 2 * r.width, (1 - v.y) / 2 * r.height]; }
   canvas.addEventListener('pointermove', e => {
     if (drag) {
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+      let dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+      if (drag.touch && !drag.move) {
+        if (!drag.armed) {                             // still deciding: sideways turns the object, vertical is the page's scroll
+          const tx = e.clientX - drag.sx, ty = e.clientY - drag.sy; if (Math.hypot(tx, ty) < 7) return;
+          drag.moved = true; clearTimeout(drag.hold);
+          if (Math.abs(tx) <= Math.abs(ty)) return;
+          drag.armed = true;
+        }
+        dy = 0;                                        // a finger turns it about the vertical axis only
+      }
       if (drag.move) {
         const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(ndc, camera);
         const pt = new THREE.Vector3(); if (ray.ray.intersectPlane(plane, pt)) {
@@ -414,24 +433,47 @@ export async function initHero({ canvas, onProgress, onLabel, onReady, onHover, 
     if (move) { const pt = new THREE.Vector3(); if (ray.ray.intersectPlane(plane, pt)) off.copy(pt).sub(o.pivot.position).setY(0); }
     const q0inv = o.pivot.quaternion.clone().invert();
     const group = carried(o).map(f => ({ o: f, rel: f.pivot.position.clone().sub(o.pivot.position), q: f.pivot.quaternion.clone() }));
-    drag = { o, x: e.clientX, y: e.clientY, move, off, group, q0inv, free: false };
+    const touch = e.pointerType === 'touch';
+    drag = { o, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, move, off, group, q0inv, free: false, touch, armed: !touch, moved: false, hold: 0, t0: performance.now() };
+    if (touch) {
+      const d = drag, pt = new THREE.Vector3(), has = ray.ray.intersectPlane(plane, pt);
+      d.hold = setTimeout(() => {                      // held still: pick it up, the finger now slides it over the table
+        if (drag !== d || d.moved || !has) return;
+        d.move = true; d.off.copy(pt).sub(o.pivot.position).setY(0); navigator.vibrate?.(12); onHover?.(o, screenOf(o), 'move'); dirty = true;
+      }, 340);
+      onHover?.(o, screenOf(o));
+    }
     const gl = group.map(g => g.o); drag.free = !hitAny(o, gl, false);
     // hitAny/settle take the carried objects as a plain list
     drag.group = Object.assign(group, { includes: b => gl.includes(b) });
     canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; e.preventDefault();
   });
-  const end = e => { if (!drag) return; const o = drag.o, g = drag.group; drag = null; if (isFruit(o)) { settle(o, []); dirty = true; } canvas.style.cursor = hover ? 'grab' : ''; };
-  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
-  canvas.addEventListener('pointerleave', () => { if (!drag) setHover(null); });
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-  canvas.addEventListener('dblclick', e => {
-    const o = hit(e); if (!o) return;
+  let lastTap = { o: null, t: 0 };
+  function resetObj(o) {
     const back = [o, ...(o === plate ? Object.values(objs).filter(isFruit) : [])];
     for (const b of back) { b.pivot.position.copy(b.home.p); b.pivot.quaternion.copy(b.home.q); }
     for (const b of back) if (hitAny(b, back, false)) settle(b, back);
     for (const f of Object.values(objs)) if (isFruit(f) && !back.includes(f) && f.r >= 1) rest(f);
     dirty = true;
-  });
+  }
+  const end = e => {
+    if (!drag) return; const d = drag, o = d.o; clearTimeout(d.hold); drag = null;
+    if (isFruit(o)) { settle(o, []); dirty = true; }
+    if (d.touch) {
+      const now = performance.now();
+      if (e.type === 'pointerup' && !d.moved && !d.move && now - d.t0 < 300) {       // a tap; two on the same object reset it
+        if (lastTap.o === o && now - lastTap.t < 380) { resetObj(o); lastTap = { o: null, t: 0 }; } else lastTap = { o, t: now };
+      }
+      setTimeout(() => { if (!drag) onHover?.(null); }, 900);
+    }
+    canvas.style.cursor = hover ? 'grab' : '';
+  };
+  // once a touch has become a turn or a move, the page must not scroll under it
+  canvas.addEventListener('touchmove', e => { if (drag && drag.touch && (drag.move || drag.armed) && e.cancelable) e.preventDefault(); }, { passive: false });
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+  canvas.addEventListener('pointerleave', () => { if (!drag) setHover(null); });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('dblclick', e => { const o = hit(e); if (o && performance.now() - lastTap.t > 500) resetObj(o); });
 
   // ---------- loop ----------
   function resize() {
@@ -461,6 +503,14 @@ export async function initHero({ canvas, onProgress, onLabel, onReady, onHover, 
     get split() { return photoOn && splitNow <= 1 ? splitNow : null; },
     debugCam(c) { camOverride = c; apply(cur); draw(); },
     variants: makeVariants(),
+    // screen position (canvas px) just above an object, or null while it is hidden, unbuilt, or under the photo
+    anchor(name) {
+      const o = objs[name]; if (!o || o.r < 1 || !o.pivot.visible) return null;
+      const v = o.pivot.position.clone(); refresh(o); v.y += o.maxY + 0.02; v.project(camera); if (v.z > 1 || Math.abs(v.x) > 1.05 || Math.abs(v.y) > 1.05) return null;
+      const r = canvas.getBoundingClientRect(), x = (v.x + 1) / 2 * r.width, y = (1 - v.y) / 2 * r.height;
+      if (photoOn && (splitNow > 1 || x / r.width < splitNow)) return null;
+      return [x, y];
+    },
     _objs: objs,
     _pt(name) { const o = objs[name], v = o.pivot.position.clone(); refresh(o); v.y += (o.minY + o.maxY) / 2; v.project(camera); const r = canvas.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
     _overlaps() { const out = []; for (const o of Object.values(objs)) if (o !== robot && o.r >= 1 && hitAny(o, [], false)) out.push(o.name); return out; },

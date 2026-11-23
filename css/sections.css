@@ -362,3 +362,20 @@ footer{margin-top:70px;padding:26px 0 30px;border-top:1px solid var(--nline);col
 /* gradient words: negative tracking makes the inline box narrower than the last glyph, so the clipped background
    cut the right edge of the "s"; pad the paint area and take the padding back out of the layout */
 h1 b,.closing h2 b{padding:.06em .1em .14em .03em;margin:-.06em -.1em -.14em -.03em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+/* phones: comparison tables fit the screen (value over a thin bar) instead of scrolling sideways */
+@media (max-width:720px){
+  .bt{overflow:hidden;padding:8px 8px 10px}.bt-in{min-width:0}
+  .bt-r{grid-template-columns:minmax(0,var(--lwm,92px)) repeat(var(--n),minmax(0,1fr));gap:6px;padding:8px 4px}
+  .bt-r .m{white-space:normal;font-size:12px;line-height:1.2}
+  .bt-r.head b{font-size:10.5px;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}.bt-r.head small{font-size:9.5px}
+  .bt-r.grp{font-size:9.5px;padding:8px 4px 0}
+  .bt .cell{grid-template-columns:1fr;gap:3px;min-width:0}.bt .cell .val{order:-1;text-align:left;font-size:10.5px}.bt .trk{height:5px}
+  .phys .bt-r{grid-template-columns:minmax(0,118px) repeat(var(--n),minmax(0,1fr))}
+  .wall{aspect-ratio:1/1.16}.wall-view{inset:0 0 27% 0}.wall-ten{inset:5% 3% 3%;gap:5px}
+  .wall-hud{padding:12px 16px 14px}.wall-n b,.wall-v b{font-size:40px}.wall-n>span,.wall-v>span{font-size:9.5px;letter-spacing:.04em;display:block;max-width:150px}
+}
+
+.bt-r.head .sm{display:none}
+@media (max-width:720px){.bt-r.head .lg{display:none}.bt-r.head .sm{display:inline}.bt-r.head b{overflow-wrap:normal;white-space:nowrap}.bt-r .m{overflow-wrap:anywhere}.bt-r.ours .m{font-size:11px;letter-spacing:-.02em}.bt-r.head small{display:none}}
+@media (max-width:720px){.bt-r{grid-template-columns:minmax(0,var(--lwm,100px)) repeat(var(--n),minmax(0,1fr))}.bt-r.ours .m{font-size:10.5px;letter-spacing:-.03em;white-space:nowrap;overflow-wrap:normal}}
+.tr-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s}.tr-stage video.on{opacity:1}
