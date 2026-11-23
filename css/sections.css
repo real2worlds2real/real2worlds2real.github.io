@@ -359,3 +359,6 @@ footer{margin-top:70px;padding:26px 0 30px;border-top:1px solid var(--nline);col
 .closing .authors span{white-space:nowrap}
 .closing pre{white-space:pre-wrap;word-break:break-word}
 @media (max-width:520px){.closing .authors{gap:6px 14px;font-size:14px;margin-top:40px}}
+/* gradient words: negative tracking makes the inline box narrower than the last glyph, so the clipped background
+   cut the right edge of the "s"; pad the paint area and take the padding back out of the layout */
+h1 b,.closing h2 b{padding:.06em .1em .14em .03em;margin:-.06em -.1em -.14em -.03em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
