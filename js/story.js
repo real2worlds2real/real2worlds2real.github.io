@@ -50,6 +50,10 @@ export function initStory({ hero, pin }) {
     layer.append(b); beacons[key] = b;
   }
   const cool = {};
+  // the expanded width of each label is measured once the fonts are in, and set explicitly:
+  // Safari sizes the flex button too narrow on its own and cuts the label mid-word
+  const sizeLabels = () => Object.values(beacons).forEach(b => { const sp = b.querySelector('span'); b.style.setProperty('--lw', Math.ceil(sp.scrollWidth) + 'px'); });
+  sizeLabels(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(sizeLabels);
 
   // ---- beacons follow their objects while the finished scene is on screen
   let on = false;
