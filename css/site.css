@@ -283,3 +283,19 @@ h1 b{font-weight:700;background:linear-gradient(100deg,#7df0de 0%,#8fc8ff 50%,#b
 @media (min-width:981px){.pipe .pipe-flow{grid-template-columns:.85fr 24px 3fr 24px .9fr 24px .9fr}}
 @media (min-width:981px){.pipe .pf-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.pipe .pt{min-height:50px}}
 footer{margin-top:60px}
+
+/* ---------- overview text spans the full width of the four-step map ---------- */
+#film .sh,#film .lead,#film .abs,#film .terms{max-width:none}
+.more .md,.more-in .note,.more-in p{max-width:none}
+.more>summary{padding-left:0;padding-right:0}
+#watch{scroll-margin-top:84px}
+/* long text runs the full content width; no early line breaks from balancing */
+.sec .sh,#film .sh{max-width:none}
+.sec .lead,#film .lead{max-width:none;text-wrap:wrap}
+.more .md,.more-in p,.abs,.terms dd,.pipe-note,.note{text-wrap:wrap}
+/* film: a plain title so readers know the player is the overview video */
+.film-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.film-head h3{margin:0;font:600 clamp(20px,2vw,26px)/1.2 var(--display);letter-spacing:-.015em;color:var(--snow)}
+.film-head .pi{flex:0 0 34px;height:34px;padding:0;border:0;cursor:pointer;border-radius:50%;background:var(--snow);position:relative;transition:transform .2s}.film-head .pi:hover{transform:scale(1.08)}.film-head .pi:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+.film-head .pi::after{content:"";position:absolute;left:13px;top:10px;border:7px solid transparent;border-left:11px solid var(--night);border-right:0}
+.film-head .dur{font-size:15px;color:rgba(238,244,248,.6)}

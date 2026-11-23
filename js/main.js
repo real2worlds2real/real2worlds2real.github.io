@@ -63,7 +63,8 @@ onScroll();
 
 /* ================= film ================= */
 const demo = $('#demo'), chEl = $('#chapters');
-const CHAPTERS = [[0, 'World building'], [46, 'Policy development'], [66, 'Simulation capability'], [94, 'Self-improvement'], [136, 'Scaling']];
+$('#film-play').onclick = () => { demo.paused ? demo.play().catch(() => { }) : demo.pause(); };
+const CHAPTERS = [[0, 'World building'], [46, 'Policy development'], [68, 'Simulation capability'], [94, 'Self-improvement'], [136, 'Scaling']];
 const mmss = t => Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
 CHAPTERS.forEach(([t, n], i) => { const b = document.createElement('button'); b.innerHTML = `<span class="t">${mmss(t)}</span><span class="n">${n}</span>`; b.onclick = () => { demo.currentTime = t + .05; demo.play(); }; if (!i) b.classList.add('on'); chEl.append(b); });
 demo.addEventListener('timeupdate', () => { let k = 0; CHAPTERS.forEach(([t], i) => { if (demo.currentTime >= t) k = i; }); [...chEl.children].forEach((b, i) => b.classList.toggle('on', i === k)); });

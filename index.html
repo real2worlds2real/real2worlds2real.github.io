@@ -20,7 +20,7 @@
   <div class="nav-links">
     <a href="#film">Overview</a><a href="#worlds">World building</a><a href="#policies">Policy development</a><a href="#skills">Self-improvement</a><a href="#scaling">Scaling</a>
   </div>
-  <a class="nav-cta" href="#film">Watch the film</a>
+  <a class="nav-cta" href="#watch">Watch the film</a>
 </div></div>
 
 <!-- ================= HERO ================= -->
@@ -32,7 +32,7 @@
         <h1>Real<i>2</i><b>Worlds</b><i>2</i>Real</h1>
         <p class="tagline">Scaling Self-Improving Agentic Real2Sim2Real for Robot Manipulation</p>
         <div class="btns">
-          <a class="btn primary" href="#film"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Film</a>
+          <a class="btn primary" href="#watch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Film</a>
           <a class="btn off" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Paper soon</a>
           <a class="btn off" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14"/></svg>Code soon</a>
         </div>
@@ -83,7 +83,8 @@
       <details class="more"><summary><span class="mt">Abstract</span><span class="chev" aria-hidden="true"></span></summary><div class="more-in"><p class="abs">Scaling robot manipulation learning remains challenging due to the high cost of collecting real-world interaction data. Real-to-Sim-to-Real (Real2Sim2Real) offers a promising route by enabling policy learning in simulation grounded in real-world observations, yet scaling this paradigm across diverse tasks and physical interactions remains difficult. We introduce Real2Worlds2Real, a self-improving agentic framework that integrates scalable simulation-world construction with policy development. Given limited visual observations and task descriptions, its tool-orchestration harness enables an agent to construct faithful digital twins and expand them into diverse, physically executable digital cousins. The agent adaptively selects tools and revisits construction decisions, using visual and execution feedback to refine geometry and physical behavior. Building on these worlds, the agent orchestrates policy development by adaptively coordinating data generation, policy learning, and refinement based on task requirements and simulation rollout feedback. Across both processes, validated procedures are distilled into reusable skills, enabling accumulated experience to guide subsequent tasks. Experiments demonstrate improved world fidelity and successful real-world policy transfer, with performance gains from increasing world diversity and interaction-data volume. Skill reuse further improves world-building efficiency and long-horizon task success.</p></div></details>
       <details class="more"><summary><span class="mt">Key terms</span><span class="chev" aria-hidden="true"></span></summary><div class="more-in"><dl class="terms"><dt>Real2Sim2Real</dt><dd>Grounding simulation in limited real-world observations to scale training environments and interactions for policies that transfer to the real world.</dd><dt>Digital twin</dt><dd>A reconstruction of the observed scene that captures real-world appearance and spatial structure.</dd><dt>Digital cousins</dt><dd>Object and scene variations of the twin: modified geometry, appearance, and materials of task objects, and variations in scene layout, background appearance, and lighting.</dd><dt>Tool-orchestration harness</dt><dd>Provides a general-purpose coding agent with a shared workspace that maintains the evolving scene and results from previous operations, and lets it adaptively select tools.</dd><dt>Skills</dt><dd>Distilled procedures that describe how a problem was identified and resolved, along with the evidence supporting the correction, so that experience can guide subsequent tasks.</dd></dl></div></details>
     </div>
-    <figure class="film-fig">
+    <figure class="film-fig" id="watch">
+      <figcaption class="film-head"><button class="pi" id="film-play" type="button" aria-label="Play the video"></button><h3>Video overview</h3><span class="dur">2:39</span></figcaption>
       <div class="theater">
       <video id="demo" src="assets/media/demo.mp4" poster="assets/media/demo_poster.jpg" controls playsinline preload="metadata"></video>
       <div class="chapters" id="chapters"></div>
@@ -109,7 +110,7 @@
           <ol id="tr-steps"></ol>
         </aside>
       </div>
-      <div class="tr-ctl"><button id="tr-play" aria-label="Play or pause">❚❚</button><div class="tr-dots" id="tr-dots"></div><span class="tr-src">Real session · peg insertion twin · every image is an artifact the agent produced</span></div>
+      <div class="tr-ctl"><button id="tr-play" aria-label="Play or pause">❚❚</button><div class="tr-dots" id="tr-dots"></div><span class="tr-src">Every image is an artifact from the agent's session for the scene at the top of this page</span></div>
     </div>
 
     <div class="more-list">

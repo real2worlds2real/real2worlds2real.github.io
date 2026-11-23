@@ -20,18 +20,19 @@ export function initSections() {
 
 /* ================= 01 · agent trace ================= */
 function trace() {
-  const TOOLS = ['SAM3', 'Camera solve', 'Inpainting', 'Layout', 'Blender', 'PhysX', 'RTX render', 'Photo compare'];
+  // every image and clip is an artifact from the agent's session for the scene in the hero (demo_recon_20261115); tool names as in Fig. 3
+  const TOOLS = ['SAM3', 'COLMAP', 'VGGT', 'Blender', 'Texture baking', '3DGS', 'PhysX'];
   const STEPS = [
-    { t: 'Observe', d: 'One photo, one instruction: “Insert the peg into the hole.”', img: 't_photo', tools: [], cap: ['input · 1 RGB photo'] },
-    { t: 'Segment the scene', d: 'Every instance is separated; the agent decides which ones the task needs.', img: 't_seg', tools: ['SAM3'], cap: ['SAM3 · instance masks'] },
-    { t: 'Complete the room', d: 'Unseen surroundings are completed into a full 360° environment.', img: 't_pano', tools: ['Inpainting', 'Layout'], cap: ['360° environment'], contain: 1 },
-    { t: 'Write the task object', d: 'Peg and socket are written as code: ⌀ 20 mm peg, ⌀ 22 mm hole.', img: 't_asset', tools: ['Blender'], cap: ['Blender · parametric asset'] },
-    { t: 'Test it in physics', d: 'Pull the peg out, re-insert it: it seats within 0.7 mm.', img: 't_split', tools: ['PhysX'], cap: ['PhysX · insertion check', ['re-seat error 0.68 mm ✓', 'good']] },
-    { t: 'Place the robot', d: 'From the nominal pose. The render disagrees with the photo.', img: 't_pose0', tools: ['RTX render', 'Photo compare'], cap: ['photo | render', ['mismatch ✗', 'bad']], fail: 1, contain: 1 },
-    { t: 'Regenerate', d: 'Re-fit the base pose against the photo silhouette, then render again.', img: 't_pose1', tools: ['Camera solve', 'RTX render', 'Photo compare'], cap: ['photo | render', ['silhouette Dice 0.84 ✓', 'good']], contain: 1 },
-    { t: 'Audit unseen views', d: 'Render what the photo never showed; look for holes and floaters.', img: 't_oblique', tools: ['RTX render'], cap: ['novel view'] },
-    { t: 'Twin accepted', d: 'Robot, table, and task object, rendered from the capture camera.', img: 't_final', tools: ['RTX render'], cap: ['twin · capture camera', ['accepted ✓', 'good']] },
-    { t: 'Hand it to policy development', d: 'The same task now runs inside the twin.', img: 't_rollout', vid: 1, dur: 15500, tools: ['PhysX'], cap: ['rollout in the twin', ['peg inserted ✓', 'good']] },
+    { t: 'Observe', d: 'RGB video of the scene and a language description of the manipulation task.', img: 'w2_input', tools: [], cap: ['input · RGB video'] },
+    { t: 'Segment the scene', d: 'Object masks constrain visible geometry.', img: 'w2_parse', tools: ['SAM3'], cap: ['SAM3 · object masks'] },
+    { t: 'Calibrate views and scale', d: 'Calibrated multiview observations and known-size references establish metric scale.', img: 'w2_scale', tools: ['COLMAP', 'VGGT'], cap: ['support plane · metric frame'] },
+    { t: 'Fit each object', d: 'Multiview observations refine parameterized models through silhouette fitting.', img: 'w2_track', tools: ['SAM3', 'Blender'], cap: ['one object · many views'], contain: 1 },
+    { t: 'Model editable assets', d: 'The agent writes and iteratively refines Blender scripts to model object geometry and task-relevant interaction structures.', img: 'w2_assets', vid: 1, dur: 8400, tools: ['Blender', 'Texture baking'], cap: ['object assets in the twin'] },
+    { t: 'Reconstruct the environment', d: 'The surrounding environment is reconstructed separately using meshes, Gaussian splats, or their combination.', img: 'w2_env', vid: 1, dur: 12000, tools: ['3DGS'], cap: ['views the capture never showed'] },
+    { t: 'Compare with the capture', d: 'Rendered views are compared with real-world observations to identify visual discrepancies.', img: 'w2_cmp0', tools: [], cap: ['model edges on the capture', ['partition misaligned ✗', 'bad']], fail: 1 },
+    { t: 'Revise and recheck', d: 'The agent uses the diagnostics to revise the relevant assets and reruns the checks.', img: 'w2_cmp1', tools: ['Blender'], cap: ['model edges on the capture', ['aligned ✓', 'good']] },
+    { t: 'Digital twin', d: 'A digital twin that captures real-world appearance and spatial structure.', img: 'w2_accept', tools: [], cap: ['video | Isaac Sim, same frames', ['accepted ✓', 'good']], contain: 1, st: 'verified' },
+    { t: 'Policy development', d: 'Building on these worlds, the agent orchestrates policy development.', img: 'w2_rollout', vid: 1, dur: 12000, tools: ['PhysX'], cap: ['rollout in the twin', ['cup stacked ✓', 'good']] },
   ];
   const DUR = 4200;
   const stage = $('#tr-stage'), cap = $('#tr-cap'), list = $('#tr-steps'), dots = $('#tr-dots'), toolsEl = $('#tr-tools'), st = $('#tr-st');
@@ -52,7 +53,7 @@ function trace() {
     const used = new Set(STEPS.slice(0, cur).flatMap(x => x.tools));
     [...toolsEl.children].forEach(t => { t.classList.toggle('on', s.tools.includes(t.textContent)); t.classList.toggle('used', used.has(t.textContent)); });
     cap.innerHTML = s.cap.map(c => Array.isArray(c) ? `<span class="${c[1]}">${c[0]}</span>` : `<span>${c}</span>`).join('');
-    st.textContent = s.fail ? 'revising' : cur === STEPS.length - 1 ? 'done' : s.tools.length ? 'working' : 'observing';
+    st.textContent = s.st ? s.st : s.fail ? 'revising' : cur === STEPS.length - 1 ? 'done' : s.tools.length ? 'working' : 'observing';
     list.children[cur].scrollIntoView({ block: 'nearest', behavior: 'smooth', inline: 'nearest' });
     clearTimeout(timer); if (playing && visible) timer = setTimeout(() => go(cur + 1), s.dur || (user ? DUR * 1.6 : DUR));
   }
