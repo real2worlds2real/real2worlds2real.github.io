@@ -113,9 +113,9 @@ function attempts() {
 /* ================= 01 · regeneration compare ================= */
 function regen() {
   const V = [
-    ['fixed', 'Fixed pipeline', 'no agent', [12.3, .54, .10, .47]],
-    ['norefine', 'Agent, single pass', 'no refinement', [15.7, .37, .24, .23]],
-    ['full', 'Agent + adaptive refinement', 'ours', [23.8, .69, .63, .58], 1],
+    ['fixed', 'Ours w/o agent', 'fixed pipeline', [12.3, .54, .10, .47]],
+    ['norefine', 'Ours w/o adaptive refinement', '', [15.7, .37, .24, .23]],
+    ['full', 'Ours', '', [23.8, .69, .63, .58], 1],
   ];
   const MET = [['PSNR ↑', 30, 1], ['Object F1 ↑', 1, 2], ['Stability ↑', 1, 2], ['Support recall ↑', 1, 2]];
   const tabs = $('#rg-tabs'), met = $('#rg-metrics'), b = $('#cmp-b'), name = $('#cmp-name');
@@ -149,11 +149,11 @@ function regen() {
 
 /* ================= 01 · geometry the simulator touches ================= */
 function geometry() {
-  const G = { gear: [['ours', 'Real2Worlds2Real', 'Teeth, bores, and shafts are modeled explicitly.', 93.3], ['polaris', 'PolaRiS', 'Scanned surfaces: the teeth soften and the board warps.', 60.0], ['simfoundry', 'SimFoundry', 'Gears come out without teeth; parts repeat and fuse.', 40.0]],
-    peg: [['ours', 'Real2Worlds2Real', 'A round bore with clearance, and a straight peg.', 100], ['polaris', 'PolaRiS', 'The socket is recovered; the peg is a lumpy scan.', 83.3], ['simfoundry', 'SimFoundry', 'Duplicate, tilted parts around the socket.', 73.3]] };
+  const G = { gear: [['ours', 'Real2Worlds2Real', '', 93.3], ['polaris', 'PolaRiS', '', 60.0], ['simfoundry', 'SimFoundry', 'Reconstructs the gears without teeth and with inaccurate shaft spacing.', 40.0]],
+    peg: [['ours', 'Real2Worlds2Real', '', 100], ['polaris', 'PolaRiS', '', 83.3], ['simfoundry', 'SimFoundry', '', 73.3]] };
   const grid = $('#geo-grid');
   let geoOn = false; const playGeo = () => $$('video', grid).forEach(v => geoOn ? v.play().catch(() => { }) : v.pause());
-  const show = k => { grid.innerHTML = G[k].map(([m, n, d, v], i) => `<figure class="geo-c${i ? '' : ' ours'}"><video src="${M}worlds/geo_${k}_${m}.mp4" poster="${M}worlds/geo_${k}_${m}.jpg" muted loop playsinline preload="metadata" aria-label="${n}: ${k} geometry, turning"></video><figcaption><div><b>${n}</b><span>${d}</span></div><div class="geo-n"><b>${v % 1 ? v.toFixed(1) : v}<small>%</small></b><span>real success</span></div></figcaption></figure>`).join(''); playGeo(); };
+  const show = k => { grid.innerHTML = G[k].map(([m, n, d, v], i) => `<figure class="geo-c${i ? '' : ' ours'}"><video src="${M}worlds/geo_${k}_${m}.mp4" poster="${M}worlds/geo_${k}_${m}.jpg" muted loop playsinline preload="metadata" aria-label="${n}: ${k} geometry, turning"></video><figcaption><div><b>${n}</b>${d ? `<span>${d}</span>` : ''}</div><div class="geo-n"><b>${v % 1 ? v.toFixed(1) : v}<small>%</small></b><span>real success</span></div></figcaption></figure>`).join(''); playGeo(); };
   inView(grid, on => { geoOn = on; playGeo(); }, { threshold: .2 });
   $$('#geo-tabs button').forEach(b => b.onclick = () => { $$('#geo-tabs button').forEach(x => x.classList.toggle('on', x === b)); show(b.dataset.k); });
   show('gear');
@@ -188,10 +188,10 @@ function physics() {
 
 /* ================= 02 · all eight tasks ================= */
 function tasksWall() {
-  const T = [['peg', 'Peg insertion', 'Insert a peg into a hole', 100, 66.7, 1], ['cup', 'Cup stacking', 'Place the blue cup onto the white cup', 100, 53.3, 1],
-    ['gear', 'Gear insertion', 'Insert a gear onto a board', 93.3, 43.3, 1], ['wipe', 'Tissue wiping', 'Open the container, pull a tissue, wipe the table', 70.0, 46.7, 1],
-    ['cap', 'Bottle capping', 'Pick up the cap, place it, screw it tight', 93.3, 53.3, 1], ['lift', 'Cup lifting', 'Lift the cup 10 cm above its start', 100, 56.7, 1],
-    ['place', 'Pick and place', 'Pick the cup up and set it down at the target', 90.0, 50.0, 1], ['nut', 'Nut tightening', 'Five full turns on a fixed bolt', 73.3, 40.0, 1]];
+  const T = [['peg', 'Peg insertion', 'Insert a peg into a hole.', 100, 66.7, 1], ['cup', 'Cup stacking', 'Place a blue cup onto a white cup.', 100, 53.3, 1],
+    ['gear', 'Gear insertion', 'Insert a gear onto a board.', 93.3, 43.3, 1], ['wipe', 'Tissue retrieval and wiping', 'Open a container, extract a tissue, and wipe the table.', 70.0, 46.7, 1],
+    ['cap', 'Bottle-cap tightening', 'Pick up a loose cap, place it on the bottle, and screw it tight.', 93.3, 53.3, 1], ['lift', 'Cup lifting', 'Lift a light-blue cup at least 10 cm above its starting height.', 100, 56.7, 1],
+    ['place', 'Cup pick-and-place', 'Pick up a blue cup and place it upright to the right of the white cup.', 90.0, 50.0, 1], ['nut', 'Nut tightening', 'Tighten a nut on a fixed bolt by turning it five full rotations.', 73.3, 40.0, 1]];
   const root = $('#tw');
   root.innerHTML = T.map(([k, n, d, ours, act, real]) => `<article class="twc" data-k="${k}" data-v="${real ? 'real' : 'sim'}">
     <div class="twv"><video muted loop playsinline preload="none" poster="${M}tasks/${k}_${real ? 'real' : 'sim'}.jpg" src="${M}tasks/${k}_${real ? 'real' : 'sim'}.mp4"></video>
@@ -208,11 +208,10 @@ function tasksWall() {
 
 /* ================= 01 · other physics ================= */
 function showcase() {
-  const S = [['cucumber', 'Cutting', 'topology changes as the blade goes through'], ['sand', 'Scraping sand', 'granular material'], ['rope', 'Shaping a rope', 'rod model, traced to a target curve'],
-    ['honey', 'Pouring honey', 'viscous fluid'], ['cup', 'Breaking a cup', 'fracture on impact'], ['turntable', 'Operating a turntable', 'articulated lid, arm, and platter']];
+  const S = [['cucumber', 'Cutting', ''], ['sand', 'Scraping sand', ''], ['rope', 'Shaping a rope', ''], ['honey', 'Pouring honey', ''], ['cup', 'Breaking a cup', ''], ['turntable', 'Operating a turntable', '']];
   const root = $('#show');
   root.innerHTML = S.map(([k, n, d]) => `<article class="shc"><div class="shv"><video class="op" muted loop playsinline preload="none" poster="${M}showcase/${k}_op.jpg" src="${M}showcase/${k}_op.mp4"></video>
-    <video class="sc" muted loop playsinline preload="none" src="${M}showcase/${k}_scene.mp4"></video><button aria-pressed="false">Wide shot</button></div><div class="shb"><b>${n}</b><span>${d}</span></div></article>`).join('');
+    <video class="sc" muted loop playsinline preload="none" src="${M}showcase/${k}_scene.mp4"></video><button aria-pressed="false">Wide shot</button></div><div class="shb"><b>${n}</b>${d ? `<span>${d}</span>` : ''}</div></article>`).join('');
   let visible = false;
   const sync = () => $$('.shc', root).forEach(c => { const wide = c.classList.contains('wide'); const on = $(wide ? '.sc' : '.op', c), offv = $(wide ? '.op' : '.sc', c); offv.pause(); visible ? on.play().catch(() => { }) : on.pause(); });
   $$('.shc', root).forEach(c => $('button', c).onclick = e => { const w = c.classList.toggle('wide'); e.currentTarget.setAttribute('aria-pressed', w); e.currentTarget.textContent = w ? 'Close-up' : 'Wide shot'; sync(); });
@@ -221,36 +220,37 @@ function showcase() {
 
 /* ================= 02 · pipeline ================= */
 function pipeline() {
-  const TOOLS = [['import', 'Import real demos', '60 teleop episodes'], ['demos', 'Generate demos', 'grasp → motion plan'], ['act', 'Train ACT / DP', 'imitation'], ['prog', 'Synthesize program', 'code-as-policy'],
-    ['rl', 'Train RL', 'reward written by the agent'], ['res', 'Residual RL', 'frozen base + corrections'], ['dagger', 'DAgger', 'corrective demos'], ['mpc', 'MPC', 'plan inside the world']];
+  const TOOLS = [['import', 'Real-world demonstrations'], ['demos', 'Generate demonstrations'], ['act', 'Train ACT'], ['prog', 'Code-as-policy'],
+    ['rl', 'State-based RL'], ['res', 'Residual RL decorator'], ['dagger', 'DAgger'], ['mpc', 'MPC']];
+  // notes: Sec. 3.3 of the paper, the sentence that describes the step each route ends with
   const TASKS = [
-    { n: 'Peg insertion', order: ['import', 'act', 'dagger'], real: '100%', realSub: 'ACT alone: 66.7% · 30 real trials',
-      note: 'Real demonstrations train an ACT policy. Where its rollouts in the twin go wrong, DAgger adds corrections and the policy is retrained.',
-      runs: [['tasks/peg_sim', 'In the twin', 'peg seated in the hole', 1], ['tasks/peg_real', 'Real robot', 'same policy, zero-shot', 1]] },
-    { n: 'Cup stacking', order: ['import', 'act', 'res'], real: '100%', realSub: 'ACT alone: 53.3% · 30 real trials',
-      note: 'Imitation gets close. Rollouts show where it fails, and a residual policy is trained in the twin until it stops failing.',
-      runs: [['cup_act', 'ACT only', 'grasps, then slips', 0], ['cup_ck060', '+ residual · ckpt 60', 'places far off', 0], ['cup_ck100', 'ckpt 100', 'reaches the rim', 0], ['cup_ck500', 'ckpt 500', 'stacked', 1]] },
-    { n: 'Gear insertion', order: ['rl', 'demos', 'act', 'res'], real: '93.3%', realSub: 'ACT alone: 43.3% · 30 real trials',
-      note: 'An RL policy trained in the twin generates the demonstrations. ACT learns from them, and a residual policy corrects what is left.',
-      runs: [['tasks/gear_sim', 'In the twin', 'gear seated on its shaft', 1], ['tasks/gear_real', 'Real robot', 'same policy, zero-shot', 1]] },
-    { n: 'Tissue wiping', order: ['prog', 'mpc'], real: '70.0%', realSub: 'ACT alone: 46.7% · 30 real trials',
-      note: 'No demonstrations needed: the agent writes a control program and re-plans the wipe from state feedback inside the world.',
-      runs: [['wipe', 'Program + MPC', 'plan, wipe, re-plan', 1]] },
-    { n: 'Bottle capping', order: ['import', 'act', 'rl'], real: '93.3%', realSub: 'ACT alone: 53.3% · 30 real trials',
-      note: 'The cap is placed by imitation; tightening is a state-based RL policy that improves across training, shown here from random to epoch 400.',
-      runs: [['wb_random', 'RL · random policy', 'wrong hand pose', 0], ['wb_ep100', 'epoch 100', 'still off the cap', 0], ['wb_ep200', 'epoch 200', '0.4 turns', 0], ['wb_ep400', 'epoch 400', 'tightened', 1]] },
-    { n: 'Cup lifting', order: ['act', 'prog'], real: '100%', realSub: 'ACT alone: 56.7% · 30 real trials',
-      note: 'Imitation and code together: an ACT policy, composed with a program the agent writes.',
-      runs: [['tasks/lift_sim', 'In the twin', 'cup raised above its start', 1], ['tasks/lift_real', 'Real robot', 'same policy, zero-shot', 1]] },
-    { n: 'Pick and place', order: ['prog'], real: '90.0%', realSub: 'ACT alone: 50.0% · 30 real trials',
-      note: 'No training at all: the agent writes the pick and the place as a program and revises it against simulated rollouts.',
-      runs: [['tasks/place_sim', 'In the twin', 'picked up, carried, set down', 1], ['tasks/place_real', 'Real robot', 'same program, zero-shot', 1]] },
-    { n: 'Nut tightening', order: ['prog', 'res'], real: '73.3%', realSub: 'ACT alone: 40.0% · 30 real trials',
-      note: 'Scripted turning alone is brittle to nut placement, so a closed-loop policy adjusts it from execution feedback.',
-      runs: [['nut', 'Program + closed-loop policy', 'five full turns', 1]] },
+    { n: 'Peg insertion', order: ['import', 'act', 'dagger'], real: '100%', realSub: 'ACT 66.7%',
+      note: 'When a compatible expert can provide corrective actions at states visited by the current policy, the agent can apply DAgger-style refinement, adding these corrections to the demonstration set for further training.',
+      runs: [['tasks/peg_sim', 'Simulation', 1], ['tasks/peg_real', 'Real robot', 1]] },
+    { n: 'Cup stacking', order: ['import', 'act', 'res'], real: '100%', realSub: 'ACT 53.3%',
+      note: 'It can also train an RL decorator through simulated interactions, learning residual action corrections from task rewards while keeping the base policy frozen.',
+      runs: [['cup_act', 'ACT', 0], ['cup_ck060', 'RL decorator · checkpoint 60', 0], ['cup_ck100', 'Checkpoint 100', 0], ['cup_ck500', 'Checkpoint 500', 1]] },
+    { n: 'Gear insertion', order: ['rl', 'demos', 'act', 'res'], real: '93.3%', realSub: 'ACT 43.3%',
+      note: 'Both control programs and state-based RL policies can serve directly as task policies or generate demonstrations for subsequent learning.',
+      runs: [['tasks/gear_sim', 'Simulation', 1], ['tasks/gear_real', 'Real robot', 1]] },
+    { n: 'Tissue retrieval and wiping', order: ['prog', 'mpc'], real: '70.0%', realSub: 'ACT 46.7%',
+      note: 'Control programs can segment and localize task objects from visual observations, then invoke model predictive control (MPC) to update actions using state feedback.',
+      runs: [['wipe', 'Program + MPC', 1]] },
+    { n: 'Bottle-cap tightening', order: ['import', 'act', 'rl'], real: '93.3%', realSub: 'ACT 53.3%',
+      note: 'It can also train state-based reinforcement learning (RL) policies with task-specific rewards constructed from task objectives and simulation states.',
+      runs: [['wb_random', 'RL · random policy', 0], ['wb_ep100', 'Epoch 100', 0], ['wb_ep200', 'Epoch 200', 0], ['wb_ep400', 'Epoch 400', 1]] },
+    { n: 'Cup lifting', order: ['act', 'prog'], real: '100%', realSub: 'ACT 56.7%',
+      note: 'It selects suitable tools and learning methods to construct policies or refine existing ones.',
+      runs: [['tasks/lift_sim', 'Simulation', 1], ['tasks/lift_real', 'Real robot', 1]] },
+    { n: 'Cup pick-and-place', order: ['prog'], real: '90.0%', realSub: 'ACT 50.0%',
+      note: 'The agent can synthesize executable control programs in a code-as-policy paradigm, combining BODex-style grasp optimization with motion planning through cuRobo.',
+      runs: [['tasks/place_sim', 'Simulation', 1], ['tasks/place_real', 'Real robot', 1]] },
+    { n: 'Nut tightening', order: ['prog', 'res'], real: '73.3%', realSub: 'ACT 40.0%',
+      note: 'Simulation feedback helps the agent revise program logic and tool parameters.',
+      runs: [['nut', 'Program + RL decorator', 1]] },
   ];
   const tasksEl = $('#pipe-tasks'), toolsEl = $('#pipe-tools'), run = $('#pipe-run'), real = $('#pipe-real'), note = $('#pipe-note');
-  TOOLS.forEach(([k, n, d]) => { const t = el('div', 'pt', `${n}<small>${d}</small><span class="ord"></span>`); t.dataset.k = k; toolsEl.append(t); });
+  TOOLS.forEach(([k, n]) => { const t = el('div', 'pt', `${n}<span class="ord"></span>`); t.dataset.k = k; toolsEl.append(t); });
   let visible = false, cur = 0;
   function show(i) {
     cur = i; const t = TASKS[i];
@@ -258,7 +258,7 @@ function pipeline() {
     [...toolsEl.children].forEach(p => { const o = t.order.indexOf(p.dataset.k); p.classList.toggle('on', o >= 0); $('.ord', p).textContent = o >= 0 ? o + 1 : ''; p.style.transitionDelay = o >= 0 ? (o * .15) + 's' : '0s'; });
     real.innerHTML = `${t.real}<small>${t.realSub}</small>`; note.textContent = t.note;
     run.style.setProperty('--n', Math.max(2, t.runs.length)); run.innerHTML = '';
-    t.runs.forEach(([src, a, b, ok]) => { const r = el('div', 'run', `<span class="mark ${ok ? 'ok' : ''}">${ok ? '✓ success' : '✗ fails'}</span><video src="${M}${src.includes('/') ? src : 'policy/' + src}.mp4" poster="${M}${src.includes('/') ? src : 'policy/' + src}.jpg" muted loop playsinline preload="metadata"></video><div class="rc"><b>${a}</b><span>${b}</span></div>`); if (t.runs.length === 1) r.style.gridColumn = '1 / -1'; run.append(r); });
+    t.runs.forEach(([src, a, ok]) => { const r = el('div', 'run', `<span class="mark ${ok ? 'ok' : ''}">${ok ? '✓ success' : '✗ fails'}</span><video src="${M}${src.includes('/') ? src : 'policy/' + src}.mp4" poster="${M}${src.includes('/') ? src : 'policy/' + src}.jpg" muted loop playsinline preload="metadata"></video><div class="rc"><b>${a}</b></div>`); if (t.runs.length === 1) r.style.gridColumn = '1 / -1'; run.append(r); });
     if (t.runs.length === 1) { run.style.setProperty('--n', 2); $('video', run).style.aspectRatio = '16/7'; }
     if (visible) $$('video', run).forEach(v => v.play().catch(() => { }));
   }
@@ -285,10 +285,10 @@ function pair() {
 /* ================= 02 · real bars ================= */
 function realBars() {
   const REAL = {
-    a: { tasks: ['Peg insertion', 'Cup stacking', 'Gear insertion', 'Tissue wiping', 'Bottle capping'], short: ['Peg', 'Cup', 'Gear', 'Wipe', 'Cap'],
+    a: { tasks: ['Peg insertion', 'Cup stacking', 'Gear insertion', 'Tissue retrieval and wiping', 'Bottle-cap tightening'], short: ['Peg', 'Cup', 'Gear', 'Wipe', 'Cap'],
       rows: [['ACT (imitation)', [66.7, 53.3, 43.3, 46.7, 53.3]], ['Real-world training', [86.7, 96.7, 86.7, 60.0, 93.3]], ['PolaRiS', [83.3, 66.7, 60.0, 50.0, 63.3]], ['SimFoundry', [73.3, 83.3, 40.0, 46.7, 56.7]], ['Real2Worlds2Real', [100, 100, 93.3, 70.0, 93.3], 1]],
       foot: 'Table 1(a). Every method refines the same ACT base policy (60 real demonstrations) with the same RL procedure and equal data; only the world differs.' },
-    b: { tasks: ['Cup lifting', 'Pick and place', 'Nut tightening', 'Cup stacking'], short: ['Lift', 'Pick & place', 'Nut', 'Cup'],
+    b: { tasks: ['Cup lifting', 'Cup pick-and-place', 'Nut tightening', 'Cup stacking'], short: ['Lift', 'PickPlace', 'Nut', 'Cup'],
       rows: [['ACT (imitation)', [56.7, 50.0, 40.0, 53.3]], ['ENPIRE', [76.7, 83.3, 53.3, 80.0]], ['ASPIRE', [90.0, 86.7, 63.3, 80.0]], ['Real2Worlds2Real', [100, 90.0, 73.3, 100], 1]],
       foot: 'Table 1(b). All agentic methods use our simulation worlds and the same 60 real demonstrations; only the way the policy is developed differs.' } };
   const show = k => { barTable($('#realbars'), REAL[k]); $('#realfoot').textContent = REAL[k].foot; };

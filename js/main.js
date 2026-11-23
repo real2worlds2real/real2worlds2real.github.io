@@ -51,12 +51,7 @@ if (webgl) {
   initHero({
     canvas: $('#scene'),
     onProgress: f => { $('i', loader).style.width = (f * 100) + '%'; },
-    onLabel: (o, xy) => {
-      if (o.name.startsWith('fruit_') && o.name !== 'fruit_1') return;
-      const t = document.createElement('div'); t.className = 'tag3d'; t.textContent = '+ ' + (o.name === 'fruit_1' ? 'Fruit ×5' : o.label);
-      t.style.left = xy[0] + 'px'; t.style.top = (xy[1] - 16) + 'px'; tags.append(t);
-      requestAnimationFrame(() => t.classList.add('on')); setTimeout(() => t.classList.remove('on'), 1500); setTimeout(() => t.remove(), 2000);
-    },
+    onLabel: () => { },                                   // no pop-up name tags while objects appear
     onSplit: x => { if (x !== splitX) placeSplit(x); },
     onHover: (o, xy, mode) => { if (story && story.hover(mode === 'move' ? null : o) && mode !== 'move') return hovertag.classList.remove('on'); if (!o) return hovertag.classList.remove('on'); hovertag.textContent = (mode === 'move' ? 'Moving · ' : '') + o.label; hovertag.classList.toggle('mv', mode === 'move'); hovertag.style.left = xy[0] + 'px'; hovertag.style.top = (xy[1] - 16) + 'px'; hovertag.classList.add('on'); },
   }).then(h => {
@@ -68,12 +63,11 @@ onScroll();
 
 /* ================= film ================= */
 const demo = $('#demo'), chEl = $('#chapters');
-const CHAPTERS = [[0, 'World building'], [46, 'Sim-to-real policies'], [66, 'Simulation capability'], [94, 'Skill library'], [136, 'World diversity']];
+const CHAPTERS = [[0, 'World building'], [46, 'Policy development'], [66, 'Simulation capability'], [94, 'Self-improvement'], [136, 'Scaling']];
 const mmss = t => Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
 CHAPTERS.forEach(([t, n], i) => { const b = document.createElement('button'); b.innerHTML = `<span class="t">${mmss(t)}</span><span class="n">${n}</span>`; b.onclick = () => { demo.currentTime = t + .05; demo.play(); }; if (!i) b.classList.add('on'); chEl.append(b); });
 demo.addEventListener('timeupdate', () => { let k = 0; CHAPTERS.forEach(([t], i) => { if (demo.currentTime >= t) k = i; }); [...chEl.children].forEach((b, i) => b.classList.toggle('on', i === k)); });
-demo.muted = true;
-new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) demo.play().catch(() => {}); else demo.pause(); }), { threshold: .6 }).observe(demo);
+new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) demo.pause(); }), { threshold: .1 }).observe(demo);   // plays only when the reader presses play
 
 /* ================= sections ================= */
 import('./sections.js').then(m => m.initSections()).catch(e => console.warn('sections', e));
