@@ -366,7 +366,7 @@ async function skills() {
   let mode = null, step = 0, chart = null, timer = null, visible = false, key = 'world';
   const vid = (src, label) => `<video src="${M}si/${src}.mp4" poster="${M}si/${src}.jpg" muted loop playsinline autoplay preload="metadata"></video>${label ? `<span class="lb">${label}</span>` : ''}`;
   function load(k) {
-    key = k; mode = MODES[k]; step = 0; chips.innerHTML = '';
+    key = k; mode = MODES[k]; step = 0; chips.innerHTML = ''; $('#si').dataset.mode = k;
     mode.cols.forEach((c, i) => { const b = el('button', '', c.skill); b.onclick = () => go(Math.min(mode.steps - 1, i + 1), true); chips.append(b); });
     $('#si-ct').textContent = mode.title; $('#si-cs').textContent = mode.sub; $('#si-legend').innerHTML = mode.legend; $('#si-note').textContent = mode.note;
     $('#si-target').style.display = k === 'world' ? '' : 'none'; if (k === 'world') $('#si-target video').play().catch(() => { });
@@ -493,11 +493,11 @@ function scaling() {
     tip.style.left = Math.min(w.width - 250, Math.max(10, e.clientX - w.left + 16)) + 'px'; tip.style.top = Math.min(w.height - 170, Math.max(10, e.clientY - w.top - 150)) + 'px'; tip.classList.add('on'); auto = false;
   });
   grid.addEventListener('pointerleave', () => tip.classList.remove('on'));
-  chart = lineChart($('#ch-div'), { title: 'World-diversity scaling', dark: 1, h: 270, x: { min: 0, max: 1000, ticks: [0, 250, 500, 750, 1000], label: 'Training worlds', tip: 'Worlds' }, y: { min: 0, max: 80, ticks: [0, 20, 40, 60, 80], label: 'Success rate (%)' },
-    series: [{ name: 'Unseen scenes', color: '--scale-b', pts: STOPS.map((n, i) => [n, SUCC[i]]) }], sel: 0 });
-  lineChart($('#ch-data'), { title: 'Interaction-data scaling', dark: 1, h: 270, x: { min: 0, max: 3000, ticks: [0, 1000, 2000, 3000], label: 'Training demonstrations', tip: 'Demonstrations' }, y: yPct,
-    series: [{ name: 'Seen scenes', color: '--world-b', pts: [[100, 4], [500, 54], [1000, 66], [2000, 76], [3000, 76]] }, { name: 'Unseen scenes', color: '--policy-b', shape: 'sq', pts: [[100, 3], [500, 43], [1000, 52], [2000, 49], [3000, 58]] },
-      { name: 'Seen + DAgger', color: '--world-b', dash: 1, nomark: 1, hollow: 1, end: false, pts: [[2000, 76], [2600, 87]] }, { name: 'Unseen + DAgger', color: '--policy-b', dash: 1, nomark: 1, hollow: 1, shape: 'sq', end: false, pts: [[2000, 49], [2600, 73]] }],
+  chart = lineChart($('#ch-div'), { title: 'World-diversity scaling', h: 270, x: { min: 0, max: 1000, ticks: [0, 250, 500, 750, 1000], label: 'Training worlds', tip: 'Worlds' }, y: { min: 0, max: 80, ticks: [0, 20, 40, 60, 80], label: 'Success rate (%)' },
+    series: [{ name: 'Unseen scenes', color: '--scale', pts: STOPS.map((n, i) => [n, SUCC[i]]) }], sel: 0 });
+  lineChart($('#ch-data'), { title: 'Interaction-data scaling', h: 270, x: { min: 0, max: 3000, ticks: [0, 1000, 2000, 3000], label: 'Training demonstrations', tip: 'Demonstrations' }, y: yPct,
+    series: [{ name: 'Seen scenes', color: '--world', pts: [[100, 4], [500, 54], [1000, 66], [2000, 76], [3000, 76]] }, { name: 'Unseen scenes', color: '--policy', shape: 'sq', pts: [[100, 3], [500, 43], [1000, 52], [2000, 49], [3000, 58]] },
+      { name: 'Seen + DAgger', color: '--world', dash: 1, nomark: 1, hollow: 1, end: false, pts: [[2000, 76], [2600, 87]] }, { name: 'Unseen + DAgger', color: '--policy', dash: 1, nomark: 1, hollow: 1, shape: 'sq', end: false, pts: [[2000, 49], [2600, 73]] }],
     annots: [{ x: 2600, y: 87, t: '87%' }, { x: 2600, y: 73, t: '73%', dy: 20, dx: 6, anchor: 'start' }] });
   setStop(0);
   const A = ['tasks/cup_sim', 'si/p_pick_1', 'wall/r_05', 'tasks/peg_sim', 'si/p_open_lid_0', 'wall/r_02', 'si/p_tighten_2', 'tasks/wipe_sim', 'wall/r_07', 'tasks/lift_sim', 'si/p_chain_0'];

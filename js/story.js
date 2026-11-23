@@ -37,6 +37,8 @@ const DUR = 4200;
 
 export function initStory({ hero, pin }) {
   const hud = $('.hud', pin), root = $('#story'), card = $('.story-card', root), stage = $('#story-stage'), list = $('#story-steps'), dots = $('#story-dots');
+  // the panel lives at the top level as a fixed overlay: inside the sticky, clipped hero pin Safari can cut it off
+  document.body.append(root);
   const byObj = {}; const beacons = {};
   const layer = el('div', 'beacons'); hud.append(layer);
   for (const [key, st] of Object.entries(STORIES)) {
@@ -76,7 +78,7 @@ export function initStory({ hero, pin }) {
     list.innerHTML = st.steps.map(s => `<li class="${s.s}"><i></i><span><b>${s.t}</b>${s.d ? `<em>${s.d}</em>` : ''}</span></li>`).join('');
     [...list.children].forEach((li, i) => li.onclick = () => go(i, true));
     dots.innerHTML = st.steps.map(() => '<i></i>').join(''); [...dots.children].forEach((d, i) => d.onclick = () => go(i, true));
-    if (from) { const r = from.getBoundingClientRect(), pr = pin.getBoundingClientRect(); card.style.transformOrigin = `${r.left - pr.left + r.width / 2}px ${r.top - pr.top}px`; }
+    if (from) { const r = from.getBoundingClientRect(); card.style.transformOrigin = `${r.left - card.offsetLeft + r.width / 2}px ${r.top - card.offsetTop}px`; }
     root.classList.add('on'); root.setAttribute('aria-hidden', 'false'); pin.classList.add('story-open'); openY = scrollY;
     const rv = stage.querySelector('.real video'); if (rv) rv.play().catch(() => { });
     $('#story-play').textContent = '❚❚'; go(0); $('.story-x', root).focus({ preventScroll: true });
