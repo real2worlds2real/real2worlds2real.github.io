@@ -347,3 +347,12 @@ section#scaling{background:linear-gradient(180deg,var(--g5) 0,var(--g6) 100%);bo
 .beacon.hot,.beacon:hover,.beacon:focus-visible{width:calc(44px + var(--lw,170px))}
 .beacon.hot span,.beacon:hover span,.beacon:focus-visible span{width:var(--lw,170px);padding-right:0}
 @media (max-width:820px){.beacon,.beacon.hot,.beacon:hover{width:30px}}
+
+/* hero: authors + affiliations */
+.h-authors{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;max-width:900px;margin:24px auto 0;font:500 15px/1.4 var(--body);color:var(--snow);text-shadow:0 1px 14px rgba(7,11,16,.7)}
+.h-authors span,.h-affils span{white-space:nowrap}
+.h-authors sup,.h-affils sup{font-size:.68em;font-weight:500;vertical-align:.5em;line-height:0;opacity:1;color:var(--snow2)}
+.h-affils sup{margin:0 3px 0 0}
+.h-affils{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 18px;max-width:900px;margin:10px auto 0;font:400 13.5px/1.4 var(--body);color:var(--snow2);text-shadow:0 1px 14px rgba(7,11,16,.7)}
+.h-authors+.h-affils+.btns{margin-top:24px}
+@media (max-width:620px){.h-authors{gap:2px 11px;font-size:13.5px;margin-top:18px;max-width:420px}.h-affils{gap:0 12px;font-size:12px}}
