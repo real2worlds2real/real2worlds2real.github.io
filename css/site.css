@@ -351,6 +351,7 @@ section#scaling{background:linear-gradient(180deg,var(--g5) 0,var(--g6) 100%);bo
 /* hero: authors + affiliations */
 .h-authors{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 20px;max-width:1040px;margin:26px auto 0;font:500 17.5px/1.4 var(--body);color:var(--snow);text-shadow:0 1px 14px rgba(7,11,16,.7)}
 .h-authors span,.h-affils span{white-space:nowrap}
+.h-authors a,.closing .authors a{color:inherit;font:inherit;text-decoration:none;pointer-events:auto}
 .h-authors sup,.h-affils sup{font-size:.68em;font-weight:500;vertical-align:.5em;line-height:0;opacity:1;color:var(--snow2)}
 .h-affils sup{margin:0 3px 0 0}
 .h-affils{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 22px;max-width:1040px;margin:12px auto 0;font:400 15px/1.45 var(--body);color:var(--snow2);text-shadow:0 1px 14px rgba(7,11,16,.7)}
